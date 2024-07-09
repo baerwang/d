@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+env:
+  package: app_amd64.deb
+
 jobs:
   generation_tag:
     name: Generation Tag
@@ -77,22 +80,22 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o build/opt/app/app
 
       - name: Make a deb
-        run: dpkg-deb -b build ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb
+        run: dpkg-deb -b build ${{ env.package }}
 
       - name: Calculate checksum
-        run: echo $(shasum -a 256 ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb | cut -f1 -d' ') >${{ needs.generation_tag.outputs.release_tag }}_amd64.deb.sha256sum
+        run: echo $(shasum -a 256 ${{ env.package }} | cut -f1 -d' ') >${{ env.package }}.sha256sum
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb
-          path: ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb
+          name: ${{ env.package }}
+          path: ${{ env.package }}
 
       - name: Upload checksum of artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb.sha256sum
-          path: ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb.sha256sum
+          name: ${{ env.package }}.sha256sum
+          path: ${{ env.package }}.sha256sum
 
   release:
     name: Release artifacts
@@ -108,4 +111,5 @@ jobs:
           name: "Release ${{ needs.generation_tag.outputs.release_tag }}"
           tag_name: ${{ needs.generation_tag.outputs.release_tag }}
           files: |
-            **/${{ needs.generation_tag.outputs.release_tag }}_*
+            **/${{ env.package }}
+            **/${{ env.package }}.sha256sum
