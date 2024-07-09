@@ -92,8 +92,8 @@ jobs:
       - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
-          name: "Release v${{ needs.generation_tag.tag.outputs.release_tag }}"
-          tag_name: v${{ needs.generation_tag.tag.outputs.release_tag }}
+          name: "Release v${{ needs.generation_tag.outputs.release_tag }}"
+          tag_name: v${{ needs.generation_tag.outputs.release_tag }}
           files: |
             **/README.md
             **/${{ github.event.repository.name }}.sha256sum
