@@ -2,4 +2,6 @@
 
 echo "hello world remove"
 
+systemctl stop app
 systemctl disable app
+systemctl daemon-reload
