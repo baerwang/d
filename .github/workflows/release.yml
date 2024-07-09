@@ -73,7 +73,7 @@ jobs:
 
       - name: Release build
         run: |
-          mkdir build/opt/app
+          mkdir -p build/opt/app
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o build/opt/app/app
 
       - name: Make a deb
