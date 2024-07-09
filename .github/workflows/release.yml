@@ -55,6 +55,11 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
+      - name: Set up Git
+        run: |
+          git config --local user.email "bot@axisnow.com"
+          git config --local user.name "bot axisnow"  
+
       - name: Generate release tag
         id: tag
         run: echo "::set-output name=release_tag::Build_$(date +"%Y.%m.%d_%H-%M")"
