@@ -47,6 +47,7 @@ jobs:
 
   build:
     name: Build binary
+    needs: [ generation_tag ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -93,7 +94,7 @@ jobs:
 
   release:
     name: Release artifacts
-    needs: [ generation_tag, build ]
+    needs: [ build ]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
