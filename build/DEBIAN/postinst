@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "install"
+
+systemctl enable app
+systemctl start app

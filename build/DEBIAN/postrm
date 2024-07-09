@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "hello world remove"
+
+systemctl disable app

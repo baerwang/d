@@ -65,23 +65,31 @@ jobs:
       #          export GOPRIVATE=github.com/cyberandao
       #          git config --global url.https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com/cyberandao.insteadOf https://github.com/cyberandao
 
-      - name: Release build
-        run: echo 1
+      - name: Set up Go
+        uses: actions/setup-go@v5.0.0
+        with:
+          go-version: '1.21'
 
-      - name: Calculate checksum and rename binary
-        run: echo $(shasum -a 256 README.md | cut -f1 -d' ') >${{ github.event.repository.name }}.sha256sum
+      - name: Release build
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o build/app/app
+
+      - name: Make a deb
+        run: dpkg-deb -b build ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb
+
+      - name: Calculate checksum
+        run: echo $(shasum -a 256 ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb | cut -f1 -d' ') >${{ needs.generation_tag.outputs.release_tag }}_amd64.deb.sha256sum
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: README.md
-          path: README.md
+          name: ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb
+          path: ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb
 
       - name: Upload checksum of artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.event.repository.name }}.sha256sum
-          path: ${{ github.event.repository.name }}.sha256sum
+          name: ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb.sha256sum
+          path: ${{ needs.generation_tag.outputs.release_tag }}_amd64.deb.sha256sum
 
   release:
     name: Release artifacts
@@ -97,5 +105,4 @@ jobs:
           name: "Release ${{ needs.generation_tag.outputs.release_tag }}"
           tag_name: ${{ needs.generation_tag.outputs.release_tag }}
           files: |
-            **/README.md
-            **/${{ github.event.repository.name }}.sha256sum
+            **/${{ needs.generation_tag.outputs.release_tag }}_amd64.deb*

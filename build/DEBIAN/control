@@ -1,0 +1,9 @@
+Package: app
+Version: 1.0.0
+Section: free
+Priority: optional
+Essential: no
+Architecture: amd64
+Maintainer: bot <bot@axisnow.com>
+Provides: hell_deb
+Description: deb tes
