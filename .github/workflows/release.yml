@@ -94,4 +94,4 @@ jobs:
           tag_name: v${{ github.run_number }}
           files: |
             **/README.md
-            **/${{ github.event.repository.name }}-*
+            **/${{ github.event.repository.name }}.sha256sum
