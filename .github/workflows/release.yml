@@ -17,6 +17,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
+#      - name: Generate installation access token for middle-ci app
+#        id: generate-token
+#        uses: actions/create-github-app-token@v1
+#        with:
+#          app-id: ${{ secrets.MIDDLE_CI_APP_ID }}
+#          private-key: ${{ secrets.MIDDLE_CI_APP_PRIVATE_KEY }}
+#          owner: ${{ github.repository_owner }}
+
       - name: Set up Git
         run: |
           git config --local user.email "action@github.com"
@@ -29,9 +37,8 @@ jobs:
           echo "::set-output name=tag::v${{ github.run_number }}"
 
       - name: Push Tag
-        if: success()
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.generate-token.outputs.token }}
         run: git push origin ${{ steps.create_tag.outputs.tag }}
 
   build:
@@ -41,18 +48,18 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-#      - name: Generate installation access token for middle-ci app
-#        id: generate-token
-#        uses: actions/create-github-app-token@v1
-#        with:
-#          app-id: ${{ secrets.MIDDLE_CI_APP_ID }}
-#          private-key: ${{ secrets.MIDDLE_CI_APP_PRIVATE_KEY }}
-#          owner: ${{ github.repository_owner }}
-#
-#      - name: Configure Authentication
-#        run: |
-#          export GOPRIVATE=github.com/cyberandao
-#          git config --global url.https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com/cyberandao.insteadOf https://github.com/cyberandao
+      #      - name: Generate installation access token for middle-ci app
+      #        id: generate-token
+      #        uses: actions/create-github-app-token@v1
+      #        with:
+      #          app-id: ${{ secrets.MIDDLE_CI_APP_ID }}
+      #          private-key: ${{ secrets.MIDDLE_CI_APP_PRIVATE_KEY }}
+      #          owner: ${{ github.repository_owner }}
+      #
+      #      - name: Configure Authentication
+      #        run: |
+      #          export GOPRIVATE=github.com/cyberandao
+      #          git config --global url.https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com/cyberandao.insteadOf https://github.com/cyberandao
 
       - name: Release build
         run: echo 1
@@ -84,6 +91,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           name: "Release v${{ github.run_number }}"
-          generate_release_notes: true
+          tag_name: v${{ github.run_number }}
           files: |
+            **/README.md
             **/${{ github.event.repository.name }}-*
