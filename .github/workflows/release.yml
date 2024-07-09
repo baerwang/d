@@ -94,7 +94,7 @@ jobs:
 
   release:
     name: Release artifacts
-    needs: [ build ]
+    needs: [ generation_tag,build ]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -106,4 +106,4 @@ jobs:
           name: "Release ${{ needs.generation_tag.outputs.release_tag }}"
           tag_name: ${{ needs.generation_tag.outputs.release_tag }}
           files: |
-            **/${{ needs.generation_tag.outputs.release_tag }}_amd64.deb*
+            **/${{ needs.generation_tag.outputs.release_tag }}_*
