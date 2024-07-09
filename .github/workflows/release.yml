@@ -31,15 +31,9 @@ jobs:
           git config --local user.email "bot@axisnow.com"
           git config --local user.name "bot axisnow"
 
-      - uses: szenius/set-timezone@v2.0
-        with:
-          timezoneLinux: "Asia/Singapore"
-          timezoneMacos: "Asia/Singapore"
-          timezoneWindows: "Singapore Standard Time"
-
       - name: Generate release tag
         id: tag
-        run: echo "::set-output name=release_tag::build_$(date +"%Y.%m.%d_%H-%M")"
+        run: echo "::set-output name=release_tag::build_$(TZ='Asia/Shanghai' date +"%Y.%m.%d_%H-%M")"
 
       - name: Create Tag
         id: create_tag
