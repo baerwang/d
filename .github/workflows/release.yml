@@ -12,6 +12,8 @@ jobs:
   generation_tag:
     name: Generation Tag
     runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.tag.outputs.release_tag }}
     steps:
       #      - name: Generate installation access token for middle-ci app
       #        id: generate-token
@@ -31,17 +33,17 @@ jobs:
 
       - name: Generate release tag
         id: tag
-        run: echo "::set-output name=release_tag::Build_$(date +"%Y.%m.%d_%H-%M")"
+        run: echo "::set-output name=release_tag::build_$(date +"%Y.%m.%d_%H-%M")"
 
       - name: Create Tag
         id: create_tag
         run: |
-          git tag -a v${{ steps.tag.outputs.release_tag }} -m "Auto-generated tag from GitHub Actions"
+          git tag -a ${{ steps.tag.outputs.release_tag }} -m "Auto-generated tag from GitHub Actions"
 
       - name: Push Tag
         env:
           github-token: ${{ steps.generate-token.outputs.token }}
-        run: git push origin v${{ steps.tag.outputs.release_tag }}
+        run: git push origin ${{ steps.tag.outputs.release_tag }}
 
   build:
     name: Build binary
@@ -92,8 +94,8 @@ jobs:
       - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
-          name: "Release v${{ needs.generation_tag.outputs.release_tag }}"
-          tag_name: v${{ needs.generation_tag.outputs.release_tag }}
+          name: "Release ${{ needs.generation_tag.outputs.release_tag }}"
+          tag_name: ${{ needs.generation_tag.outputs.release_tag }}
           files: |
             **/README.md
             **/${{ github.event.repository.name }}.sha256sum
