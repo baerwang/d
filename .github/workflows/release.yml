@@ -29,7 +29,13 @@ jobs:
       - name: Set up Git
         run: |
           git config --local user.email "bot@axisnow.com"
-          git config --local user.name "bot axisnow"  
+          git config --local user.name "bot axisnow"
+
+      - uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: "Asia/Singapore"
+          timezoneMacos: "Asia/Singapore"
+          timezoneWindows: "Singapore Standard Time"
 
       - name: Generate release tag
         id: tag
