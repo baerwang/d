@@ -9,6 +9,40 @@ on:
       - main
 
 jobs:
+  generation_tag:
+    name: Generation Tag
+    runs-on: ubuntu-latest
+    steps:
+      #      - name: Generate installation access token for middle-ci app
+      #        id: generate-token
+      #        uses: actions/create-github-app-token@v1
+      #        with:
+      #          app-id: ${{ secrets.MIDDLE_CI_APP_ID }}
+      #          private-key: ${{ secrets.MIDDLE_CI_APP_PRIVATE_KEY }}
+      #          owner: ${{ github.repository_owner }}
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config --local user.email "bot@axisnow.com"
+          git config --local user.name "bot axisnow"  
+
+      - name: Generate release tag
+        id: tag
+        run: echo "::set-output name=release_tag::Build_$(date +"%Y.%m.%d_%H-%M")"
+
+      - name: Create Tag
+        id: create_tag
+        run: |
+          git tag -a v${{ steps.tag.outputs.release_tag }} -m "Auto-generated tag from GitHub Actions"
+
+      - name: Push Tag
+        env:
+          github-token: ${{ steps.generate-token.outputs.token }}
+        run: git push origin v${{ steps.tag.outputs.release_tag }}
+
   build:
     name: Build binary
     runs-on: ubuntu-latest
@@ -49,39 +83,17 @@ jobs:
 
   release:
     name: Release artifacts
-    needs: [ build ]
+    needs: [ generation_tag, build ]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
-
-      - name: Set up Git
-        run: |
-          git config --local user.email "bot@axisnow.com"
-          git config --local user.name "bot axisnow"  
-
-      - name: Generate release tag
-        id: tag
-        run: echo "::set-output name=release_tag::Build_$(date +"%Y.%m.%d_%H-%M")"
-
-      - name: Create Tag
-        id: create_tag
-        run: |
-          git tag -a v${{ steps.tag.outputs.release_tag }} -m "Auto-generated tag from GitHub Actions"
-
-      - name: Push Tag
-        env:
-          github-token: ${{ steps.generate-token.outputs.token }}
-        run: git push origin v${{ steps.tag.outputs.release_tag }}
-
       - name: Download artifacts
         uses: actions/download-artifact@v3
 
       - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
-          name: "Release v${{ steps.tag.outputs.release_tag }}"
-          tag_name: v${{ steps.tag.outputs.release_tag }}
+          name: "Release v${{ needs.generation_tag.tag.outputs.release_tag }}"
+          tag_name: v${{ needs.generation_tag.tag.outputs.release_tag }}
           files: |
             **/README.md
             **/${{ github.event.repository.name }}.sha256sum
