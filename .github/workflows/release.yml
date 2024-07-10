@@ -36,7 +36,7 @@ jobs:
 
       - name: Generate release tag
         id: tag
-        run: echo "::set-output name=release_tag::build_$(TZ='Asia/Shanghai' date +"%Y.%m.%d_%H-%M")"
+        run: echo "release_tag=build_$(TZ='Asia/Shanghai' date +"%Y.%m.%d_%H-%M")" >>$GITHUB_OUTPUT
 
       - name: Create Tag
         id: create_tag
@@ -86,13 +86,13 @@ jobs:
         run: echo $(shasum -a 256 ${{ env.package }} | cut -f1 -d' ') >${{ env.package }}.sha256sum
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.package }}
           path: ${{ env.package }}
 
       - name: Upload checksum of artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.package }}.sha256sum
           path: ${{ env.package }}.sha256sum
